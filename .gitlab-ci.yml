@@ -1,0 +1,67 @@
+stages:
+  - trigger
+
+kane_ai_execution:
+  stage: trigger
+  image: node:20-alpine
+    
+  before_script:
+    # Install dependencies for polling (curl, jq) and the node script (axios)
+    - apk add --no-cache curl jq
+    - npm install axios
+
+  script:
+    # 1) Run the Node Orchestrator
+    # This handles: Fetch Case -> Get Env -> Create Run -> Trigger KaneAI
+    # It produces the 'kane_job.env' file containing KANE_JOB_ID
+    - echo "Starting Kane AI Orchestration..."
+    - node flow.js
+
+    # 2) Verify the ID was captured
+    - |
+      if [ ! -f kane_job.env ]; then
+        echo "ERROR: kane_job.env was not created by flow.js"
+        exit 1
+      fi
+      # We manually source it here for the immediate script execution context
+      source kane_job.env
+      echo "Orchestrator returned Job ID: $KANE_JOB_ID"
+
+    # 3) Polling Logic
+    - |
+      echo "Checking status for Job ID: $KANE_JOB_ID"
+      
+      MAX_RETRIES=40
+      COUNT=0
+      SLEEP_TIME=30
+      
+      while [ $COUNT -lt $MAX_RETRIES ]; do
+        sleep $SLEEP_TIME
+        
+        # Poll the status
+        response=$(curl -s --location "https://api.hyperexecute.cloud/v2.0/job/$KANE_JOB_ID" \
+          -H "Authorization: Basic ${TMA_BASE64_AUTH}")
+        
+        # Extract Status
+        status=$(echo "$response" | jq -r '.data.status // .status')
+        echo "[Attempt $((COUNT+1))/$MAX_RETRIES] Current status: $status"
+        
+        if [ "$status" == "completed" ] || [ "$status" == "passed" ]; then
+          echo ">>> Tests passed successfully!"
+          exit 0
+        elif [ "$status" == "failed" ] || [ "$status" == "error" ] || [ "$status" == "cancelled" ]; then
+          echo "xxx Tests $status. Exiting with error."
+          exit 1
+        fi
+        
+        COUNT=$((COUNT+1))
+      done
+      
+      echo "Timed out waiting for tests to complete."
+      exit 1
+
+  # Pass the environment variable to other jobs 
+  artifacts:
+    reports:
+      dotenv: kane_job.env
+    when: always
