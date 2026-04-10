@@ -20,15 +20,15 @@ jobs:
         run: |
           mkdir -p .lambdatest
           cat > .lambdatest/config.yaml <<EOF
-          project_id: ${{ secrets.PROJECT_ID }}
-          folder_id: ${{ secrets.FOLDER_ID }}
+          project_id: ${{ vars.PROJECT_ID }}
+          folder_id: ${{ vars.FOLDER_ID }}
           EOF
 
       - name: Run Kane AI Orchestrator
         env:
           LT_USERNAME: ${{ secrets.USERNAME }}
           LT_ACCESS_KEY: ${{ secrets.ACCESS_KEY }}
-          LT_PROJECT_ID: ${{ secrets.PROJECT_ID }}
-          TARGET_TITLE: ${{ secrets.TARGET_TITLE }}
-          TARGET_ENV_NAMES: ${{ secrets.TARGET_ENV_NAMES }}
+          LT_PROJECT_ID: ${{ vars.PROJECT_ID }}
+          TARGET_TITLE: ${{ vars.TARGET_TITLE }}
+          TARGET_ENV_NAMES: ${{ vars.TARGET_ENV_NAMES }}
         run: node flow.js
