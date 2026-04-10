@@ -26,9 +26,9 @@ jobs:
 
       - name: Run Kane AI Orchestrator
         env:
-          LT_USERNAME: ${{ secrets.LT_USERNAME }}
-          LT_ACCESS_KEY: ${{ secrets.LT_ACCESS_KEY }}
-          LT_PROJECT_ID: ${{ secrets.LT_PROJECT_ID }}
+          LT_USERNAME: ${{ secrets.USERNAME }}
+          LT_ACCESS_KEY: ${{ secrets.ACCESS_KEY }}
+          LT_PROJECT_ID: ${{ secrets.PROJECT_ID }}
           TARGET_TITLE: ${{ secrets.TARGET_TITLE }}
           TARGET_ENV_NAMES: ${{ secrets.TARGET_ENV_NAMES }}
         run: node flow.js
