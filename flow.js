@@ -6,7 +6,7 @@ const USERNAME = process.env.LT_USERNAME;
 const ACCESS_KEY = process.env.LT_ACCESS_KEY;
 const PROJECT_ID = process.env.LT_PROJECT_ID;
 const TARGET_TITLE = process.env.TARGET_TITLE;
-const TARGET_ENV_NAMES = process.env.TARGET_ENV_NAMES.split(',');
+const TARGET_ENV_NAMES = ["env1", "env2"];
 
 // API Endpoints
 const BASE_URL = 'https://test-manager-api.lambdatest.com/api/v1';
