@@ -1,0 +1,26 @@
+name: Kane AI Test Run
+
+on:
+  workflow_dispatch:
+
+jobs:
+  run-tests:
+    runs-on: ubuntu-latest
+    environment: USERNAME
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - run: npm install
+
+      - name: Run Kane AI Orchestrator
+        env:
+          LT_USERNAME: ${{ secrets.LT_USERNAME }}
+          LT_ACCESS_KEY: ${{ secrets.LT_ACCESS_KEY }}
+          LT_PROJECT_ID: ${{ secrets.LT_PROJECT_ID }}
+          TARGET_TITLE: ${{ secrets.TARGET_TITLE }}
+          TARGET_ENV_NAMES: ${{ secrets.TARGET_ENV_NAMES }}
+        run: node flow.js
